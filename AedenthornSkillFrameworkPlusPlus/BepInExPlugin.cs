@@ -34,7 +34,7 @@ namespace AedenthornSkillFrameworkPlusPlus
             modEnabled = Config.Bind("General", "Enabled", true, "Enable this mod");
             isDebug = Config.Bind<bool>("General", "IsDebug", true, "Enable debug logs");
 
-            nexusID = Config.Bind<int>("General", "NexusID", 69, "Nexus mod ID for updates");
+            //nexusID = Config.Bind<int>("General", "NexusID", 69, "Nexus mod ID for updates");
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
 
