@@ -81,8 +81,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsmotymUtils.cs" />
     <Compile Include="MoreSkillsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Skills\BaseSkill.cs" />
+    <Compile Include="Skills\BearSpirit.cs" />
+    <Compile Include="Skills\CatsAgility.cs" />
+    <Compile Include="Skills\ISkill.cs" />
     <Compile Include="Skills\TemptressWisdom.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -91,6 +96,7 @@
       <Name>AedenthornSkillFrameworkPlusPlus</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>COPY "$(TargetPath)" "$(SolutionDir)\LatestRelease\$(ProjectName)\$(TargetFileName)"

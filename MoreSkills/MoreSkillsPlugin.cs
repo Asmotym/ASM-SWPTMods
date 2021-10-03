@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 using BepInEx;
@@ -11,13 +12,12 @@ namespace MoreSkills
     [BepInPlugin("asmotym.MoreSkills", "More Skills", "0.0.1")]
     public partial class MoreSkillsPlugin : BaseUnityPlugin
     {
-        // skills
-        private static TemptressWisdom temptressWisdom;
-
         // config entries
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<int> nexusID;
+
+        public static List<BaseSkill> skillList;
 
         public static void Log(string message)
         {
@@ -27,11 +27,16 @@ namespace MoreSkills
 
         private void Awake()
         {
-            modEnabled = Config.Bind<bool>("General", "Enabled", true, "Enable this mod");
-            isDebug = Config.Bind<bool>("General", "IsDebug", true, "Enable debug logs");
+            modEnabled = Config.Bind<bool>("0 - General", "Enabled", true, "Enable this mod");
+            isDebug = Config.Bind<bool>("0 - General", "IsDebug", true, "Enable debug logs");
 
             // build skills
-            temptressWisdom = new TemptressWisdom(this);
+            skillList = new List<BaseSkill>()
+            {
+                new TemptressWisdom(this, "1 - Temptress Wisdom"),
+                new BearSpirit(this, "2 - Bear Spirit"),
+                new CatsAgility(this, "3 - Cats Agility"),
+            };
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
             Log("Plugin Awake");
@@ -40,7 +45,11 @@ namespace MoreSkills
         public void Start()
         {
             Log("Plugin Start");
-            temptressWisdom.Update();
+            foreach (BaseSkill skill in skillList)
+            {
+                Log($"Update skill {skill}...");
+                skill.Update();
+            }
         }
 
     }

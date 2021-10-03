@@ -7,39 +7,39 @@ using System;
 
 namespace MoreSkills.Skills
 {
-    public partial class TemptressWisdom : BaseSkill
+    public partial class CatsAgility : BaseSkill
     {
-        // temptress wisdom config entries
+        // cat's agility config entries
         public ConfigEntry<int> increase;
 
         protected override string skillId
         {
-            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(TemptressWisdom).Name; }
+            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(CatsAgility).Name; }
             set { skillId = value; }
         }
 
-        public TemptressWisdom(
+        public CatsAgility(
             MoreSkillsPlugin moreSkillsPlugin,
             string sectionName,
             string defaultIconName = "frame",
             int maxPoints = 10,
-            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, typeof(TemptressWisdom).Name, maxPoints, reqLevel)
+            int reqLevel = 2): base(moreSkillsPlugin, sectionName, typeof(CatsAgility).Name, maxPoints, reqLevel)
         { }
 
         public override void SetConfig()
         {
             // bind skill settings
-            increase = plugin.Config.Bind<int>(configSection, "Increase", 2, "Base Power value increase per skill level");
+            increase = plugin.Config.Bind<int>(configSection, "AgilityIncrease", 2, "Agility stat increase per skill level");
         }
 
         public override void SetSkillDescription()
         {
             skillDescription = new List<string>()
             {
-                string.Format("Increase Power by {0} per level", increase.Value), // en
-                string.Format("每级增加 {0} 的力量", increase.Value), // chinese
-                string.Format("Увеличивайте мощность на {0} за уровень", increase.Value), // russian
-                string.Format("レベルごとに力を {0} 増やします", increase.Value), // japanese
+                string.Format("Increase Agility by {0} per level", increase.Value), // en
+                string.Format("每级将敏捷提高 {0}", increase.Value), // chinese
+                string.Format("Повышайте ловкость на {0} за уровень", increase.Value), // russian
+                string.Format("レベルごとに敏捷性を{0}ずつ増やします", increase.Value), // japanese
             };
         }
 
@@ -47,10 +47,10 @@ namespace MoreSkills.Skills
         {
             skillName = new List<string>()
             {
-                "Temptress Wisdom", // en
-                "魔女智慧", // chinese
-                "Мудрость соблазнительницы", // russian
-                "誘惑の知恵", // japanese
+                "Cat's Agility", // en
+                "猫的敏捷", // chinese
+                "Кошачья ловкость", // russian
+                "猫の敏捷性", // japanese
             };
         }
 
@@ -59,7 +59,7 @@ namespace MoreSkills.Skills
             increase.SettingChanged += Increase_SettingChanged;
         }
 
-        public void Increase_SettingChanged(object sender, EventArgs e)
+        private void Increase_SettingChanged(object sender, EventArgs e)
         {
             Update();
         }
@@ -74,12 +74,8 @@ namespace MoreSkills.Skills
 
             ID id = AsmotymUtils.GetCurrentID();
 
-            // decrease power value
-            id.power -= increase.Value;
-
-            // refresh ui character
-            if (Global.code.uiCharacter.gameObject.activeSelf)
-                Global.code.uiCharacter.Refresh();
+            // decrease vitality and strength values
+            id.agility -= increase.Value;
 
             return true;
         }
@@ -94,12 +90,8 @@ namespace MoreSkills.Skills
 
             ID id = AsmotymUtils.GetCurrentID();
 
-            // increase power value
-            id.power += increase.Value;
-
-            // refresh ui character
-            if (Global.code.uiCharacter.gameObject.activeSelf)
-                Global.code.uiCharacter.Refresh();
+            // increase vitality and strength values
+            id.agility += increase.Value;
 
             return true;
         }
