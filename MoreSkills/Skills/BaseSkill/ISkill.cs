@@ -26,9 +26,9 @@ namespace MoreSkills.Skills
 
         void Update();
 
-        bool Decrease(SkillBox skillBox, SkillInfo skillInfo);
+        bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo);
 
-        bool Increase(SkillBox skillBox, SkillInfo skillInfo);
+        bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo);
 
     }
 }

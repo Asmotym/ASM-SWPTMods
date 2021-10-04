@@ -149,47 +149,33 @@ namespace AedenthornSkillFrameworkPlusPlus
                     return true;
 
                 bool reduce = Chainloader.PluginInfos.ContainsKey("aedenthorn.Respec") && AedenthornUtils.CheckKeyHeld(Chainloader.PluginInfos["aedenthorn.Respec"].Instance.Config[new ConfigDefinition("Options", "ModKey")].BoxedValue as string);
+                SkillInfo skillInfo = SkillAPI.GetSkill(__instance.name);
 
-                // avoid increasing point when not skill points are available
-                if (Global.code.uiCharacter.curCustomization.GetComponent<ID>().skillPoints == 0 && !reduce)
+                // skip to default method if not a custom skill
+                if (skillInfo == null)
+                    return true;
+
+                // either there's no available points or at max points for the skill
+                if (!reduce && Global.code.uiCharacter.curCustomization._ID.skillPoints <= 0 || !reduce && __instance.points >= __instance.maxPoints)
                     return false;
 
-                foreach (SkillInfo info in customSkills.Values)
+                if (reduce)
                 {
-                    if (info.id == __instance.name)
-                    {
-                        // check if we can proceed to increase skill level
-                        if (!reduce && !info.isValidToIncrease(__instance, info))
-                            return false;
-
-                        // check if we can proceed to decrease skill level
-                        if (reduce && !info.isValidToDecrease(__instance, info))
-                            return false;
-
-                        Dbgl($"{(reduce ? "Reducing" : "Increasing")} skill {__instance.name} {characterSkillLevels[Global.code.uiCharacter.curCustomization.name][__instance.name]}");
-                        GetCharacterSkillLevel(Global.code.uiCharacter.curCustomization.name, __instance.name);
-
-                        // avoid increasing skills maximum points are reached for the current skill
-                        if (__instance.points == __instance.maxPoints && !reduce)
-                            return false;
-
-                        if (reduce)
-                        {
-                            if (characterSkillLevels[Global.code.uiCharacter.curCustomization.name][__instance.name] > 0)
-                            {
-                                characterSkillLevels[Global.code.uiCharacter.curCustomization.name][__instance.name]--;
-                                if (Global.code.uiCharacter.gameObject.activeSelf)
-                                    Global.code.uiCharacter.Refresh();
-                            }
-                            return false;
-                        }
-                        else
-                        {
-                            characterSkillLevels[Global.code.uiCharacter.curCustomization.name][__instance.name]++;
-                            return true;
-                        }
-                    }
+                    // check if we can proceed to decrease skill level
+                    if (reduce && !skillInfo.OnDecreaseSkillLevel(__instance, skillInfo))
+                        return false;
+                    SkillAPI.DecreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
+                    // refresh ui
+                    Global.code.uiCharacter.Refresh();
+                    // return to avoid running default code that increase the skill level
+                    return false;
                 }
+
+                // check if we can proceed to increase skill level
+                if (!reduce && !skillInfo.OnIncreaseSkillLevel(__instance, skillInfo))
+                    return false;
+                SkillAPI.IncreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
+
                 return true;
             }
         }
@@ -205,6 +191,7 @@ namespace AedenthornSkillFrameworkPlusPlus
                 foreach (SkillInfo info in customSkills.Values)
                 {
                     ES2.Save<int>(GetCharacterSkillLevel(customization.name, info.id), $"{__instance.GetFolderName()}{customization.name}.txt?tag=CustomSkill{info.id}");
+                    info.OnSaveCharacterCustomization(info, __instance, customization);
                 }
             }
         }
@@ -222,6 +209,7 @@ namespace AedenthornSkillFrameworkPlusPlus
                     if (ES2.Exists($"{__instance.GetFolderName()}{gen.name}.txt?tag=CustomSkill{info.id}"))
                     {
                         SetCharacterSkillLevel(gen.name, info.id, ES2.Load<int>($"{__instance.GetFolderName()}{gen.name}.txt?tag=CustomSkill{info.id}"));
+                        info.OnLoadCharacterCustomization(info, __instance, gen);
                     }
                 }
             }

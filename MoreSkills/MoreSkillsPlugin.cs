@@ -17,7 +17,7 @@ namespace MoreSkills
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<int> nexusID;
 
-        public static List<BaseSkill> skillList;
+        public static List<AsmotymSkill> skillList;
 
         public static void Log(string message)
         {
@@ -30,22 +30,24 @@ namespace MoreSkills
             modEnabled = Config.Bind<bool>("0 - General", "Enabled", true, "Enable this mod");
             isDebug = Config.Bind<bool>("0 - General", "IsDebug", true, "Enable debug logs");
 
+            Log("Plugin Awake");
+
             // build skills
-            skillList = new List<BaseSkill>()
+            skillList = new List<AsmotymSkill>()
             {
-                new TemptressWisdom(this, "1 - Temptress Wisdom"),
-                new BearSpirit(this, "2 - Bear Spirit"),
-                new CatsAgility(this, "3 - Cats Agility"),
+                new TemptressWisdomSkill(this, "1 - Temptress Wisdom"),
+                new BearSpiritSkill(this, "2 - Bear Spirit"),
+                new CatsAgilitySkill(this, "3 - Cats Agility"),
+                new ManaOverflowSkill(this, "4 - Mana Overflow"),
             };
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
-            Log("Plugin Awake");
         }
 
         public void Start()
         {
             Log("Plugin Start");
-            foreach (BaseSkill skill in skillList)
+            foreach (AsmotymSkill skill in skillList)
             {
                 Log($"Update skill {skill}...");
                 skill.Update();

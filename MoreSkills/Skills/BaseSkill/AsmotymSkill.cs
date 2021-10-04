@@ -6,12 +6,15 @@ using UnityEngine;
 
 namespace MoreSkills.Skills
 {
-    public abstract class BaseSkill : ISkill
+    public abstract class AsmotymSkill : ISkill
     {
+        public static AsmotymSkill instance;
+
         // default properties
         protected MoreSkillsPlugin plugin;
         protected List<string> skillName;
         protected List<string> skillDescription;
+        protected int skillCategory;
         protected string configSection;
         protected Texture2D skillIcon = new Texture2D(1, 1);
         protected string iconName;
@@ -29,15 +32,27 @@ namespace MoreSkills.Skills
             get;
             set;
         }
+        public string GetSkillID()
+        {
+            return skillId;
+        }
 
-        public BaseSkill(MoreSkillsPlugin moreSkillsPlugin, string sectionName, string defaultIconName = "frame", int maxPoints = 5, int reqLevel = 2)
+        public AsmotymSkill(
+            MoreSkillsPlugin moreSkillsPlugin,
+            string sectionName,
+            int category = 1,
+            string defaultIconName = "frame",
+            int maxPoints = 5,
+            int reqLevel = 2
+            )
         {
             plugin = moreSkillsPlugin;
             configSection = sectionName;
             defaultMaxPoints = maxPoints;
             defaultReqLevel = reqLevel;
             iconName = defaultIconName;
-            MoreSkillsPlugin.Log($"Setup Skill using: {configSection} - {defaultMaxPoints} - {defaultReqLevel} - {iconName}");
+            skillCategory = category;
+            MoreSkillsPlugin.Log($"Setup Skill using: {configSection} - {category} - {defaultMaxPoints} - {defaultReqLevel} - {iconName}");
             Build();
         }
 
@@ -72,15 +87,15 @@ namespace MoreSkills.Skills
 
             if (skillInfo != null)
             {
-                skillInfo.decreaseDelegate = Decrease;
-                skillInfo.increaseDelegate = Increase;
+                skillInfo.SetOnDecreaseSkillLevel = OnDecreaseSkillLevel;
+                skillInfo.SetOnIncreaseSkillLevel = OnIncreaseSkillLevel;
             }
         }
 
         public virtual void AddSkill()
         {
             // initialize skill using SkillFramework API
-            SkillAPI.AddSkill(skillId, skillName, skillDescription, 1, skillIcon, maxPoints.Value, reqLevel.Value, false);
+            SkillAPI.AddSkill(skillId, skillName, skillDescription, skillCategory, skillIcon, maxPoints.Value, reqLevel.Value, false);
         }
 
         public virtual void SetSkillIcon()
@@ -95,8 +110,8 @@ namespace MoreSkills.Skills
         public abstract void SetSkillDescription();
         public abstract void SetSkillName();
         public abstract void SetSettingChanged();
-        public abstract bool Decrease(SkillBox skillBox, SkillInfo skillInfo);
-        public abstract bool Increase(SkillBox skillBox, SkillInfo skillInfo);
+        public abstract bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo);
+        public abstract bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo);
         
     }
 }

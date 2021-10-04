@@ -7,24 +7,31 @@ using System;
 
 namespace MoreSkills.Skills
 {
-    public partial class TemptressWisdom : BaseSkill
+    public partial class TemptressWisdomSkill : AsmotymSkill
     {
         // temptress wisdom config entries
         public ConfigEntry<int> increase;
 
         protected override string skillId
         {
-            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(TemptressWisdom).Name; }
+            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(TemptressWisdomSkill).Name; }
             set { skillId = value; }
         }
 
-        public TemptressWisdom(
+        public TemptressWisdomSkill(
             MoreSkillsPlugin moreSkillsPlugin,
             string sectionName,
+            int category = 2,
             string defaultIconName = "frame",
             int maxPoints = 10,
-            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, typeof(TemptressWisdom).Name, maxPoints, reqLevel)
-        { }
+            int reqLevel = 2
+            ) : base(
+                moreSkillsPlugin, sectionName, category, typeof(TemptressWisdomSkill).Name, maxPoints, reqLevel
+            )
+        {
+            // init patches
+            new TemptressWisdomPatches(this);
+        }
 
         public override void SetConfig()
         {
@@ -64,7 +71,7 @@ namespace MoreSkills.Skills
             Update();
         }
 
-        public override bool Decrease(SkillBox skillBox, SkillInfo skillInfo)
+        public override bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill decrease
             if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
@@ -84,7 +91,7 @@ namespace MoreSkills.Skills
             return true;
         }
 
-        public override bool Increase(SkillBox skillBox, SkillInfo skillInfo)
+        public override bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill increase
             if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
@@ -97,9 +104,10 @@ namespace MoreSkills.Skills
             // increase power value
             id.power += increase.Value;
 
-            // refresh ui character
-            if (Global.code.uiCharacter.gameObject.activeSelf)
-                Global.code.uiCharacter.Refresh();
+            // update stats & run sfx & refresh ui
+            Global.code.uiCharacter.curCustomization.UpdateStats();
+            RM.code.PlayOneShot(RM.code.sndAddAttribute);
+            Global.code.uiCharacter.Refresh();
 
             return true;
         }

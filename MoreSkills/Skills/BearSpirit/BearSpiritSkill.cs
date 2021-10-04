@@ -7,7 +7,7 @@ using System;
 
 namespace MoreSkills.Skills
 {
-    public partial class BearSpirit : BaseSkill
+    public partial class BearSpiritSkill : AsmotymSkill
     {
         // bear spirit config entries
         public ConfigEntry<int> increaseVitality;
@@ -15,16 +15,17 @@ namespace MoreSkills.Skills
 
         protected override string skillId
         {
-            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(BearSpirit).Name; }
+            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(BearSpiritSkill).Name; }
             set { skillId = value; }
         }
 
-        public BearSpirit(
+        public BearSpiritSkill(
             MoreSkillsPlugin moreSkillsPlugin,
             string sectionName,
+            int category = 1,
             string defaultIconName = "frame",
             int maxPoints = 10,
-            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, typeof(BearSpirit).Name, maxPoints, reqLevel)
+            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, category, typeof(BearSpiritSkill).Name, maxPoints, reqLevel)
         { }
 
         public override void SetConfig()
@@ -72,7 +73,7 @@ namespace MoreSkills.Skills
             Update();
         }
 
-        public override bool Decrease(SkillBox skillBox, SkillInfo skillInfo)
+        public override bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill decrease
             if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
@@ -89,7 +90,7 @@ namespace MoreSkills.Skills
             return true;
         }
 
-        public override bool Increase(SkillBox skillBox, SkillInfo skillInfo)
+        public override bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill increase
             if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
@@ -102,6 +103,11 @@ namespace MoreSkills.Skills
             // increase vitality and strength values
             id.strength += increaseStrength.Value;
             id.vitality += increaseVitality.Value;
+
+            // update stats & run sfx & refresh ui
+            Global.code.uiCharacter.curCustomization.UpdateStats();
+            RM.code.PlayOneShot(RM.code.sndAddAttribute);
+            Global.code.uiCharacter.Refresh();
 
             return true;
         }
