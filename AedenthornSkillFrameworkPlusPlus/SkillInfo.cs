@@ -3,11 +3,19 @@ using UnityEngine;
 
 namespace AedenthornSkillFrameworkPlusPlus
 {
+    // triggered on increasing a skill level
     public delegate bool SkillValidateIncreaseDelegate(SkillBox skillBox, SkillInfo skillInfo);
+    // triggered on decreasing a skill level
     public delegate bool SkillValidateDecreaseDelegate(SkillBox skillBox, SkillInfo skillInfo);
 
-    public delegate void SaveCharacterCustomizationDelegate(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization);
-    public delegate void LoadCharacterCustomizationDelegate(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization);
+    // triggered on saving a character skills levels
+    public delegate void PrefixSaveCharacterCustomizationDelegate(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization);
+    // triggered on loading a character skills levels
+    public delegate void PostfixLoadCharacterCustomizationDelegate(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization);
+
+    // triggered on updating a character stats
+    public delegate void PrefixCharacterCustomizationUpdateStatsDelegate(CharacterCustomization characterCustomization, SkillInfo skillInfo);
+    public delegate void PostfixCharacterCustomizationUpdateStatsDelegate(CharacterCustomization characterCustomization, SkillInfo skillInfo);
 
     public class SkillInfo
     {
@@ -20,13 +28,13 @@ namespace AedenthornSkillFrameworkPlusPlus
         public int reqLevel;
         public bool isActiveSkill;
 
+        #region Skill Increase Validation
         private SkillValidateIncreaseDelegate _increaseDelegate;
         public SkillValidateIncreaseDelegate SetOnIncreaseSkillLevel
         {
             get { return _increaseDelegate; }
             set { _increaseDelegate = value; }
         }
-
         public bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             if (_increaseDelegate != null)
@@ -34,14 +42,15 @@ namespace AedenthornSkillFrameworkPlusPlus
 
             return true;
         }
+        #endregion
 
+        #region Skill Decrease Validation
         private SkillValidateDecreaseDelegate _decreaseDelegate;
         public SkillValidateDecreaseDelegate SetOnDecreaseSkillLevel
         {
             get { return _decreaseDelegate; }
             set { _decreaseDelegate = value; }
         }
-
         public bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             if (_decreaseDelegate != null)
@@ -49,31 +58,63 @@ namespace AedenthornSkillFrameworkPlusPlus
 
             return true;
         }
+        #endregion
 
-        private SaveCharacterCustomizationDelegate _saveCharacterCustomizationDelegate;
-        public SaveCharacterCustomizationDelegate SetSaveCharacterCustomization
+        #region Prefix Patch Save Character Customization
+        private PrefixSaveCharacterCustomizationDelegate _prefixSaveCharacterCustomizationDelegate;
+        public PrefixSaveCharacterCustomizationDelegate SetPrefixSaveCharacterCustomization
         {
-            get { return _saveCharacterCustomizationDelegate; }
-            set { _saveCharacterCustomizationDelegate = value; }
+            get { return _prefixSaveCharacterCustomizationDelegate; }
+            set { _prefixSaveCharacterCustomizationDelegate = value; }
         }
+        public void PrefixSaveCharacterCustomization(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization)
+        {
+            if (_prefixSaveCharacterCustomizationDelegate != null)
+                _prefixSaveCharacterCustomizationDelegate(skillInfo, mainFrame, characterCustomization);
+        }
+        #endregion
 
-        public void OnSaveCharacterCustomization(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization)
+        #region Postfix Load Character Customization
+        private PostfixLoadCharacterCustomizationDelegate _postfixLoadCharacterCustomizationDelegate;
+        public PostfixLoadCharacterCustomizationDelegate SetPostfixLoadCharacterCustomization
         {
-            if (_saveCharacterCustomizationDelegate != null)
-                _saveCharacterCustomizationDelegate(skillInfo, mainFrame, characterCustomization);
+            get { return _postfixLoadCharacterCustomizationDelegate; }
+            set { _postfixLoadCharacterCustomizationDelegate = value; }
         }
+        public void PostfixLoadCharacterCustomization(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization)
+        {
+            if (_postfixLoadCharacterCustomizationDelegate != null)
+                _postfixLoadCharacterCustomizationDelegate(skillInfo, mainFrame, characterCustomization);
+        }
+        #endregion
 
-        private LoadCharacterCustomizationDelegate _loadCharacterCustomizationDelegate;
-        public LoadCharacterCustomizationDelegate SetLoadCharacterCustomization
+        #region Prefix Character Customization Update Stats
+        private PrefixCharacterCustomizationUpdateStatsDelegate _prefixCharacterCustomizationUpdateStatsDelegate;
+        public PrefixCharacterCustomizationUpdateStatsDelegate SetPrefixCharacterCustomizationUpdateStats
         {
-            get { return _loadCharacterCustomizationDelegate; }
-            set { _loadCharacterCustomizationDelegate = value; }
+            get { return _prefixCharacterCustomizationUpdateStatsDelegate; }
+            set { _prefixCharacterCustomizationUpdateStatsDelegate = value; }
         }
+        public void PrefixCharacterCustomizationUpdateStats(CharacterCustomization characterCustomization, SkillInfo skillInfo)
+        {
+            if (_prefixCharacterCustomizationUpdateStatsDelegate != null)
+                _prefixCharacterCustomizationUpdateStatsDelegate(characterCustomization, skillInfo);
+        }
+        #endregion
 
-        public void OnLoadCharacterCustomization(SkillInfo skillInfo, Mainframe mainFrame, CharacterCustomization characterCustomization)
+        #region Postfix Character Customization Update Stats
+        private PostfixCharacterCustomizationUpdateStatsDelegate _postfixCharacterCustomizationUpdateStatsDelegate;
+        public PostfixCharacterCustomizationUpdateStatsDelegate SetPostfixCharacterCustomizationUpdateStats
         {
-            if (_loadCharacterCustomizationDelegate != null)
-                _loadCharacterCustomizationDelegate(skillInfo, mainFrame, characterCustomization);
+            get { return _postfixCharacterCustomizationUpdateStatsDelegate; }
+            set { _postfixCharacterCustomizationUpdateStatsDelegate = value; }
         }
+        public void PostfixCharacterCustomizationUpdateStats(CharacterCustomization characterCustomization, SkillInfo skillInfo)
+        {
+            if (_postfixCharacterCustomizationUpdateStatsDelegate != null)
+                _postfixCharacterCustomizationUpdateStatsDelegate(characterCustomization, skillInfo);
+        }
+        #endregion
+
     }
 }

@@ -5,6 +5,8 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Configuration;
 using MoreSkills.Skills;
+using AedenthornSkillFrameworkPlusPlus;
+using AedenthornSkillFrameworkPlusPlus.BaseSkill;
 
 namespace MoreSkills
 {
@@ -17,7 +19,7 @@ namespace MoreSkills
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<int> nexusID;
 
-        public static List<AsmotymSkill> skillList;
+        public static List<ISkill> skillList;
 
         public static void Log(string message)
         {
@@ -33,12 +35,27 @@ namespace MoreSkills
             Log("Plugin Awake");
 
             // build skills
-            skillList = new List<AsmotymSkill>()
+            skillList = new List<ISkill>()
             {
-                new TemptressWisdomSkill(this, "1 - Temptress Wisdom"),
-                new BearSpiritSkill(this, "2 - Bear Spirit"),
-                new CatsAgilitySkill(this, "3 - Cats Agility"),
-                new ManaOverflowSkill(this, "4 - Mana Overflow"),
+                new TemptressWisdom()
+                {
+                    iconName = typeof(TemptressWisdom).Name,
+                    skillCategory = SkillCategories.Magic,
+                }.Build(this, "1 - Temptress Wisdom"),
+                new BearSpirit()
+                { iconName = typeof(BearSpirit).Name }.Build(this, "2 - Bear Spirit"),
+                new CatsAgility()
+                { iconName = typeof(CatsAgility).Name }.Build(this, "3 - Cats Agility"),
+                new ManaOverflow()
+                { 
+                    iconName = typeof(ManaOverflow).Name,
+                    skillCategory = SkillCategories.Magic,
+                }.Build(this, "4 - Mana Overflow"),
+                new MightyPower()
+                { 
+                    iconName = typeof(MightyPower).Name,
+                    skillCategory = SkillCategories.Magic,
+                }.Build(this, "5 - Mighty Power"),
             };
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
@@ -47,7 +64,7 @@ namespace MoreSkills
         public void Start()
         {
             Log("Plugin Start");
-            foreach (AsmotymSkill skill in skillList)
+            foreach (BaseSkill skill in skillList)
             {
                 Log($"Update skill {skill}...");
                 skill.Update();

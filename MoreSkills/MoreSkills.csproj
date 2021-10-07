@@ -87,14 +87,11 @@
     <Compile Include="AsmotymUtils.cs" />
     <Compile Include="MoreSkillsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Skills\BaseSkill\AsmotymSkill.cs" />
-    <Compile Include="Skills\BearSpirit\BearSpiritSkill.cs" />
-    <Compile Include="Skills\CatsAgility\CatsAgilitySkill.cs" />
-    <Compile Include="Skills\BaseSkill\ISkill.cs" />
-    <Compile Include="Skills\ManaOverflow\ManaOverflowPatches.cs" />
-    <Compile Include="Skills\ManaOverflow\ManaOverflowSkill.cs" />
-    <Compile Include="Skills\TemptressWisdom\TemptressWisdomSkill.cs" />
-    <Compile Include="Skills\TemptressWisdom\TemptressWisdomPatches.cs" />
+    <Compile Include="Skills\BearSpirit.cs" />
+    <Compile Include="Skills\CatsAgility.cs" />
+    <Compile Include="Skills\ManaOverflow.cs" />
+    <Compile Include="Skills\MightyPower.cs" />
+    <Compile Include="Skills\TemptressWisdom.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\AedenthornSkillFrameworkPlusPlus\AedenthornSkillFrameworkPlusPlus.csproj">

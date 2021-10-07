@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using BepInEx.Bootstrap;
+using BepInEx.Configuration;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -74,7 +76,6 @@ public class AedenthornUtils
         return GetTransformPath(t.parent) + "/" + t.name;
     }
 
-
     public static byte[] EncodeToPNG(Texture2D texture)
     {
         RenderTexture tmp = RenderTexture.GetTemporary(
@@ -112,6 +113,17 @@ public class AedenthornUtils
         newTexture.SetPixels(myTexture2D.GetPixels());
         newTexture.Apply();
         return newTexture.EncodeToPNG();
+    }
+
+    public static Transform[] GetUICharacterSkillCategoriesParents(UICharacter uICharacter)
+    {
+        return new Transform[]
+        {
+            uICharacter.daggerproficiency.transform.parent,
+            uICharacter.ignorpain.transform.parent,
+            uICharacter.healaura.transform.parent,
+            uICharacter.goldenhand.transform.parent
+        };
     }
 
 }

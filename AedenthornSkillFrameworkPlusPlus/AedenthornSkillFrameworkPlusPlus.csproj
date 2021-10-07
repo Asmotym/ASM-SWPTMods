@@ -73,9 +73,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AedenthornUtils.cs" />
-    <Compile Include="BepInExPlugin.cs" />
+    <Compile Include="AedenthornSkillFrameworkPlusPlus.cs" />
+    <Compile Include="BaseSkill\BaseSkill.cs" />
+    <Compile Include="BaseSkill\ISkill.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SkillAPI.cs" />
+    <Compile Include="SkillCategories.cs" />
     <Compile Include="SkillInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

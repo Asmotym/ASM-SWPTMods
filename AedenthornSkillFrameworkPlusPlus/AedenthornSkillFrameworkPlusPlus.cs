@@ -12,22 +12,23 @@ using UnityEngine.UI;
 namespace AedenthornSkillFrameworkPlusPlus
 {
     [BepInPlugin("asmotym.AedenthornSkillFrameworkPlusPlus", "Skill Framework ++", "0.0.1")]
-    public class BepInExPlugin : BaseUnityPlugin
+    public class AedenthornSkillFrameworkPlusPlus : BaseUnityPlugin
     {
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<int> nexusID;
 
-        public static BepInExPlugin context;
+        public static AedenthornSkillFrameworkPlusPlus context;
 
         public static Dictionary<string, Dictionary<string, int>> characterSkillLevels = new Dictionary<string, Dictionary<string, int>>();
         public static Dictionary<string, SkillInfo> customSkills = new Dictionary<string, SkillInfo>();
 
-        public static void Dbgl(string str = "", bool pref = true)
+        public static void Log(string message)
         {
             if (isDebug.Value)
-                Debug.Log((pref ? typeof(BepInExPlugin).Namespace + " " : "") + str);
+                Debug.Log(typeof(AedenthornSkillFrameworkPlusPlus).Namespace + " - " + message);
         }
+
         private void Awake()
         {
             context = this;
@@ -59,30 +60,34 @@ namespace AedenthornSkillFrameworkPlusPlus
         {
             static void Postfix(UICharacter __instance)
             {
+                // this draw the custom skills in their respective categories
+                // after each time the UICharacter.Refresh method is called in the game
+
                 if (!modEnabled.Value || !customSkills.Any())
                     return;
-                Transform[] parents = new Transform[]
+
+                // get categories transform elements
+                Transform[] parents = AedenthornUtils.GetUICharacterSkillCategoriesParents(__instance);
+
+                foreach (SkillInfo skillInfo in customSkills.Values)
                 {
-                    __instance.daggerproficiency.transform.parent,
-                    __instance.ignorpain.transform.parent,
-                    __instance.healaura.transform.parent,
-                    __instance.goldenhand.transform.parent
-                };
-                foreach (SkillInfo info in customSkills.Values)
-                {
-                    Transform t = parents[info.category].Find(info.id);
-                    if (!t)
+                    // get current skill transform element
+                    Transform skillTransform = parents[skillInfo.category].Find(skillInfo.id);
+
+                    // check if it's defined
+                    if (!skillTransform)
                     {
-                        if (parents[info.category].childCount % 6 == 0)
+                        // check if we should place the skill in a new line
+                        if (parents[skillInfo.category].childCount % 6 == 0)
                         {
-                            // decrease y of lower cats
-                            float height = parents[info.category].GetComponent<GridLayoutGroup>().spacing.y + __instance.daggerproficiency.transform.GetComponent<RectTransform>().sizeDelta.y;
-                            for (int i = info.category + 1; i < parents.Length; i++)
+                            // decrease y of lower categories
+                            float height = parents[skillInfo.category].GetComponent<GridLayoutGroup>().spacing.y + __instance.daggerproficiency.transform.GetComponent<RectTransform>().sizeDelta.y;
+                            for (int i = skillInfo.category + 1; i < parents.Length; i++)
                             {
                                 parents[i].parent.GetComponent<RectTransform>().anchoredPosition -= new Vector2(0, height);
-                                foreach (Transform c in parents[i])
+                                foreach (Transform category in parents[i])
                                 {
-                                    foreach (Transform cc in c)
+                                    foreach (Transform cc in category)
                                     {
                                         if (cc.name.StartsWith("plus"))
                                             cc.GetComponent<RectTransform>().anchoredPosition = Vector2.zero;
@@ -91,63 +96,41 @@ namespace AedenthornSkillFrameworkPlusPlus
                             }
                             parents[0].parent.parent.GetComponent<RectTransform>().sizeDelta += new Vector2(0, height);
                         }
-                        t = Instantiate(__instance.daggerproficiency.transform, parents[info.category]);
-                        t.name = info.id;
-                        t.GetComponentInChildren<Button>().GetComponent<RawImage>().texture = info.icon;
+                        // instanciate skillbox
+                        skillTransform = Instantiate(__instance.daggerproficiency.transform, parents[skillInfo.category]);
+                        skillTransform.name = skillInfo.id;
+                        skillTransform.GetComponentInChildren<Button>().GetComponent<RawImage>().texture = skillInfo.icon;
                     }
 
-                    Localization.LocalizationDic[info.id] = info.name;
-                    Localization.LocalizationDic[info.id + "DESC"] = info.description;
-                    int points = GetCharacterSkillLevel(__instance.curCustomization.name, info.id);
-                    SkillBox sb = t.GetComponent<SkillBox>();
-                    sb.maxPoints = info.maxPoints;
-                    sb.isActiveSkill = info.isActiveSkill;
-                    sb.Initiate(points);
+                    // setup localization
+                    Localization.LocalizationDic[skillInfo.id] = skillInfo.name;
+                    Localization.LocalizationDic[skillInfo.id + "DESC"] = skillInfo.description;
+
+                    // get current skill level
+                    int points = GetCharacterSkillLevel(__instance.curCustomization.name, skillInfo.id);
+
+                    // create SkillBox and setup properties
+                    SkillBox skillBox = skillTransform.GetComponent<SkillBox>();
+                    skillBox.maxPoints = skillInfo.maxPoints;
+                    skillBox.isActiveSkill = skillInfo.isActiveSkill;
+                    skillBox.Initiate(points);
                     __instance.curCustomization.UpdateStats();
                 }
             }
         }
-        //[HarmonyPatch(typeof(UICharacter), nameof(UICharacter.ShowTips))]
-        static class UICharacter_ShowTips_Patch
-        {
-            static void Postfix(UICharacter __instance)
-            {
-                if (!modEnabled.Value || !customSkills.Any() || GameObject.Find(customSkills.Values.ToList()[0].id))
-                    return;
 
-                Dbgl("Showing tips");
-
-                Transform[] parents = new Transform[]
-                {
-                    __instance.daggerproficiency.transform.parent,
-                    __instance.ignorpain.transform.parent,
-                    __instance.healaura.transform.parent,
-                    __instance.goldenhand.transform.parent
-                };
-
-                foreach (SkillInfo info in customSkills.Values)
-                {
-                    int points = GetCharacterSkillLevel(__instance.curCustomization.name, info.id);
-                    Transform t = Instantiate(__instance.daggerproficiency.transform, parents[info.category]);
-                    t.name = info.id;
-                    t.GetComponentInChildren<Button>().GetComponent<RawImage>().texture = info.icon;
-                    Localization.LocalizationDic[info.id] = info.name;
-                    Localization.LocalizationDic[info.id + "DESC"] = info.description;
-                    SkillBox sb = t.GetComponent<SkillBox>();
-                    sb.maxPoints = info.maxPoints;
-                    sb.isActiveSkill = info.isActiveSkill;
-                    sb.Initiate(points);
-                }
-            }
-        }
         [HarmonyPatch(typeof(SkillBox), nameof(SkillBox.ButtonClick))]
         static class SkillBox_ButtonClick_Patch
         {
             static bool Prefix(SkillBox __instance)
             {
+                // this handle click on a skill box
+                // it handle the increase / decrease of the current clicked skill level
+
                 if (!modEnabled.Value)
                     return true;
 
+                // check if the aedenthorn.Respec plugin is loaded so we can handle this plugin behaviour to reduce the skill level
                 bool reduce = Chainloader.PluginInfos.ContainsKey("aedenthorn.Respec") && AedenthornUtils.CheckKeyHeld(Chainloader.PluginInfos["aedenthorn.Respec"].Instance.Config[new ConfigDefinition("Options", "ModKey")].BoxedValue as string);
                 SkillInfo skillInfo = SkillAPI.GetSkill(__instance.name);
 
@@ -185,13 +168,16 @@ namespace AedenthornSkillFrameworkPlusPlus
         {
             static void Prefix(Mainframe __instance, CharacterCustomization customization)
             {
+                // this save the current character skills levels
+
                 if (!modEnabled.Value)
                     return;
 
                 foreach (SkillInfo info in customSkills.Values)
                 {
                     ES2.Save<int>(GetCharacterSkillLevel(customization.name, info.id), $"{__instance.GetFolderName()}{customization.name}.txt?tag=CustomSkill{info.id}");
-                    info.OnSaveCharacterCustomization(info, __instance, customization);
+                    // trigger delegate
+                    info.PrefixSaveCharacterCustomization(info, __instance, customization);
                 }
             }
         }
@@ -201,6 +187,8 @@ namespace AedenthornSkillFrameworkPlusPlus
         {
             static void Postfix(Mainframe __instance, CharacterCustomization gen)
             {
+                // this load the current character skills levels
+
                 if (!modEnabled.Value)
                     return;
 
@@ -209,8 +197,37 @@ namespace AedenthornSkillFrameworkPlusPlus
                     if (ES2.Exists($"{__instance.GetFolderName()}{gen.name}.txt?tag=CustomSkill{info.id}"))
                     {
                         SetCharacterSkillLevel(gen.name, info.id, ES2.Load<int>($"{__instance.GetFolderName()}{gen.name}.txt?tag=CustomSkill{info.id}"));
-                        info.OnLoadCharacterCustomization(info, __instance, gen);
+                        // trigger delegate
+                        info.PostfixLoadCharacterCustomization(info, __instance, gen);
                     }
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(CharacterCustomization), nameof(CharacterCustomization.UpdateStats))]
+        static class CharacterCustomization_UpdateStats_Patch
+        {
+            static bool Prefix(CharacterCustomization __instance)
+            {
+                Log($"Prefix - Updating stats for character '{__instance.name}' ...");
+
+                foreach (SkillInfo skillInfo in customSkills.Values)
+                {
+                    Log($"Prefix - Updating stats for skill '{skillInfo.name}' ...");
+                    skillInfo.PrefixCharacterCustomizationUpdateStats(__instance, skillInfo);
+                }
+
+                return true; // always returning true to continue through the main code
+            }
+
+            static void Postfix(CharacterCustomization __instance)
+            {
+                Log($"Postfix - Updating stats for character '{__instance.name}' ...");
+
+                foreach (SkillInfo skillInfo in customSkills.Values)
+                {
+                    Log($"Postfix - Updating stats for skill '{skillInfo.name}' ...");
+                    skillInfo.PostfixCharacterCustomizationUpdateStats(__instance, skillInfo);
                 }
             }
         }

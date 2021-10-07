@@ -1,32 +1,20 @@
 ﻿using BepInEx.Configuration;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+using AedenthornSkillFrameworkPlusPlus.BaseSkill;
 using AedenthornSkillFrameworkPlusPlus;
 using System;
 
 namespace MoreSkills.Skills
 {
-    public partial class ManaOverflowSkill : AsmotymSkill
+    public partial class ManaOverflow : BaseSkill
     {
         // mana overflow config entries
         public ConfigEntry<int> increase;
 
         protected override string skillId
         {
-            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(ManaOverflowSkill).Name; }
+            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(ManaOverflow).Name; }
             set { skillId = value; }
-        }
-
-        public ManaOverflowSkill(
-            MoreSkillsPlugin moreSkillsPlugin,
-            string sectionName,
-            int category = 2,
-            string defaultIconName = "frame",
-            int maxPoints = 10,
-            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, category, typeof(ManaOverflowSkill).Name, maxPoints, reqLevel)
-        {
-            new ManaOverflowPatches(this);
         }
 
         public override void SetConfig()
@@ -67,40 +55,10 @@ namespace MoreSkills.Skills
             Update();
         }
 
-        public override bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
+        public override void PostfixCharacterCustomizationUpdateStats(CharacterCustomization characterCustomization, SkillInfo skillInfo)
         {
-            // cannot handle skill decrease
-            if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
-                return true;
-
-            MoreSkillsPlugin.Log($"Decrease called for {skillBox.name}...");
-
-            /*ID id = AsmotymUtils.GetCurrentID();
-
-            // decrease max mana value
-            id.maxMana -= increase.Value;
-
-            Global.code.uiCharacter.curCustomization._ID = id;*/
-
-            return true;
-        }
-
-        public override bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
-        {
-            // cannot handle skill increase
-            if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
-                return true;
-
-            MoreSkillsPlugin.Log($"Increase called for {skillBox.name}...");
-
-            /*ID id = AsmotymUtils.GetCurrentID();
-
-            // increase max mana value
-            id.maxMana += increase.Value;
-
-            Global.code.uiCharacter.curCustomization._ID = id;*/
-
-            return true;
+            ID id = characterCustomization.GetComponent<ID>();
+            id.maxMana += (float) increase.Value * SkillAPI.GetCharacterSkillLevel(skillInfo.id, characterCustomization.name);
         }
     }
 }

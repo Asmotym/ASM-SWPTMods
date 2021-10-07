@@ -17,14 +17,14 @@ namespace AedenthornSkillFrameworkPlusPlus
             )
         {
             // check if skill already exist
-            if (BepInExPlugin.customSkills.ContainsKey(id)) {
-                BepInExPlugin.Dbgl($"Updating skill {id}");
+            if (AedenthornSkillFrameworkPlusPlus.customSkills.ContainsKey(id)) {
+                AedenthornSkillFrameworkPlusPlus.Log($"Updating skill {id}");
             } else {
-                BepInExPlugin.Dbgl($"Adding skill {id}");
+                AedenthornSkillFrameworkPlusPlus.Log($"Adding skill {id}");
             }
 
             // create and add the skill
-            BepInExPlugin.customSkills[id] = new SkillInfo()
+            AedenthornSkillFrameworkPlusPlus.customSkills[id] = new SkillInfo()
             {
                 id = id,
                 name = name,
@@ -43,7 +43,7 @@ namespace AedenthornSkillFrameworkPlusPlus
 
         public static SkillInfo GetSkill(string id)
         {
-            return BepInExPlugin.customSkills.ContainsKey(id) ? BepInExPlugin.customSkills[id] : null;
+            return AedenthornSkillFrameworkPlusPlus.customSkills.ContainsKey(id) ? AedenthornSkillFrameworkPlusPlus.customSkills[id] : null;
         }
 
         public static int GetCharacterSkillLevel(string id, string name)
@@ -51,7 +51,7 @@ namespace AedenthornSkillFrameworkPlusPlus
             if (SkillNotExist(id, name)) {
                 return 0;
             }
-            return BepInExPlugin.characterSkillLevels[name][id];
+            return AedenthornSkillFrameworkPlusPlus.characterSkillLevels[name][id];
         }
 
         public static void DecreaseSkillLevel(string id, string name)
@@ -60,10 +60,10 @@ namespace AedenthornSkillFrameworkPlusPlus
             if (SkillNotExist(id, name))
                 return;
             // check if skill is not level 0
-            if (BepInExPlugin.characterSkillLevels[name][id] == 0)
+            if (AedenthornSkillFrameworkPlusPlus.characterSkillLevels[name][id] == 0)
                 return;
             // decrease skill level
-            BepInExPlugin.characterSkillLevels[name][id]--;
+            AedenthornSkillFrameworkPlusPlus.characterSkillLevels[name][id]--;
         }
 
         public static void IncreaseSkillLevel(string id, string name)
@@ -72,12 +72,12 @@ namespace AedenthornSkillFrameworkPlusPlus
             if (SkillNotExist(id, name))
                 return;
             // increase skill level
-            BepInExPlugin.characterSkillLevels[name][id]++;
+            AedenthornSkillFrameworkPlusPlus.characterSkillLevels[name][id]++;
         }
 
         public static bool SkillNotExist(string id, string name)
         {
-            return !BepInExPlugin.characterSkillLevels.ContainsKey(name) || !BepInExPlugin.characterSkillLevels[name].ContainsKey(id);
+            return !AedenthornSkillFrameworkPlusPlus.characterSkillLevels.ContainsKey(name) || !AedenthornSkillFrameworkPlusPlus.characterSkillLevels[name].ContainsKey(id);
         }
     }
 }

@@ -1,13 +1,12 @@
 ﻿using BepInEx.Configuration;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
+using AedenthornSkillFrameworkPlusPlus.BaseSkill;
 using AedenthornSkillFrameworkPlusPlus;
 using System;
 
 namespace MoreSkills.Skills
 {
-    public partial class BearSpiritSkill : AsmotymSkill
+    public partial class BearSpirit : BaseSkill
     {
         // bear spirit config entries
         public ConfigEntry<int> increaseVitality;
@@ -15,18 +14,9 @@ namespace MoreSkills.Skills
 
         protected override string skillId
         {
-            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(BearSpiritSkill).Name; }
+            get { return typeof(MoreSkillsPlugin).Namespace + "_" + typeof(BearSpirit).Name; }
             set { skillId = value; }
         }
-
-        public BearSpiritSkill(
-            MoreSkillsPlugin moreSkillsPlugin,
-            string sectionName,
-            int category = 1,
-            string defaultIconName = "frame",
-            int maxPoints = 10,
-            int reqLevel = 2) : base(moreSkillsPlugin, sectionName, category, typeof(BearSpiritSkill).Name, maxPoints, reqLevel)
-        { }
 
         public override void SetConfig()
         {
@@ -76,7 +66,7 @@ namespace MoreSkills.Skills
         public override bool OnDecreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill decrease
-            if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
+            if (!CanHandleSkillIncreaseDecrease(skillBox, skillId))
                 return true;
 
             MoreSkillsPlugin.Log($"Decrease called for {skillBox.name}...");
@@ -93,7 +83,7 @@ namespace MoreSkills.Skills
         public override bool OnIncreaseSkillLevel(SkillBox skillBox, SkillInfo skillInfo)
         {
             // cannot handle skill increase
-            if (!AsmotymUtils.CanHandleSkillIncreaseDecrease(skillBox, skillId))
+            if (!CanHandleSkillIncreaseDecrease(skillBox, skillId))
                 return true;
 
             MoreSkillsPlugin.Log($"Increase called for {skillBox.name}...");
@@ -111,6 +101,5 @@ namespace MoreSkills.Skills
 
             return true;
         }
-
     }
 }
