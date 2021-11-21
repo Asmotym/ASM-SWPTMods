@@ -5,12 +5,12 @@ using UnityEngine;
 using BepInEx;
 using BepInEx.Configuration;
 using MoreSkills.Skills;
-using AedenthornSkillFrameworkPlusPlus;
-using AedenthornSkillFrameworkPlusPlus.BaseSkill;
+using SkillFramework;
+using SkillFramework.BaseSkill;
 
 namespace MoreSkills
 {
-    [BepInDependency("asmotym.AedenthornSkillFrameworkPlusPlus", "0.0.1")]
+    [BepInDependency("aedenthorn.SkillFramework", "0.2.1")]
     [BepInPlugin("asmotym.MoreSkills", "More Skills", "0.0.1")]
     public partial class MoreSkillsPlugin : BaseUnityPlugin
     {
@@ -39,22 +39,23 @@ namespace MoreSkills
             {
                 new TemptressWisdom()
                 {
-                    iconName = typeof(TemptressWisdom).Name,
-                    skillCategory = SkillCategories.Magic,
+                    iconName = typeof(TemptressWisdom).Name
                 }.Build(this, "1 - Temptress Wisdom"),
                 new BearSpirit()
-                { iconName = typeof(BearSpirit).Name }.Build(this, "2 - Bear Spirit"),
+                {
+                    iconName = typeof(BearSpirit).Name
+                }.Build(this, "2 - Bear Spirit"),
                 new CatsAgility()
-                { iconName = typeof(CatsAgility).Name }.Build(this, "3 - Cats Agility"),
+                {
+                    iconName = typeof(CatsAgility).Name
+                }.Build(this, "3 - Cats Agility"),
                 new ManaOverflow()
                 { 
-                    iconName = typeof(ManaOverflow).Name,
-                    skillCategory = SkillCategories.Magic,
+                    iconName = typeof(ManaOverflow).Name
                 }.Build(this, "4 - Mana Overflow"),
                 new MightyPower()
                 { 
-                    iconName = typeof(MightyPower).Name,
-                    skillCategory = SkillCategories.Magic,
+                    iconName = typeof(MightyPower).Name
                 }.Build(this, "5 - Mighty Power"),
             };
 

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AedenthornSkillFrameworkPlusPlus", "AedenthornSkillFrameworkPlusPlus\AedenthornSkillFrameworkPlusPlus.csproj", "{EB036CE6-B575-434B-8305-E4E7B909DF09}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillFramework", "AedenthornSkillFrameworkPlusPlus\SkillFramework.csproj", "{EB036CE6-B575-434B-8305-E4E7B909DF09}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoreSkills", "MoreSkills\MoreSkills.csproj", "{575A5A7A-745F-4AA2-B194-A11505F6CE7C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordPresence", "DiscordPresence\DiscordPresence.csproj", "{505518A3-558F-4F5B-99A4-302E3C6AE570}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{575A5A7A-745F-4AA2-B194-A11505F6CE7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{575A5A7A-745F-4AA2-B194-A11505F6CE7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{575A5A7A-745F-4AA2-B194-A11505F6CE7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{505518A3-558F-4F5B-99A4-302E3C6AE570}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{505518A3-558F-4F5B-99A4-302E3C6AE570}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{505518A3-558F-4F5B-99A4-302E3C6AE570}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{505518A3-558F-4F5B-99A4-302E3C6AE570}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

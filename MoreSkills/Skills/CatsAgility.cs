@@ -1,7 +1,7 @@
 ﻿using BepInEx.Configuration;
 using System.Collections.Generic;
-using AedenthornSkillFrameworkPlusPlus.BaseSkill;
-using AedenthornSkillFrameworkPlusPlus;
+using SkillFramework.BaseSkill;
+using SkillFramework;
 using System;
 
 namespace MoreSkills.Skills
@@ -59,7 +59,7 @@ namespace MoreSkills.Skills
         {
             // cannot handle skill decrease
             if (!CanHandleSkillIncreaseDecrease(skillBox, skillId))
-                return true;
+                return false;
 
             MoreSkillsPlugin.Log($"Decrease called for {skillBox.name}...");
 
@@ -75,7 +75,7 @@ namespace MoreSkills.Skills
         {
             // cannot handle skill increase
             if (!CanHandleSkillIncreaseDecrease(skillBox, skillId))
-                return true;
+                return false;
 
             MoreSkillsPlugin.Log($"Increase called for {skillBox.name}...");
 

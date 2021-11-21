@@ -1,7 +1,7 @@
 ﻿using BepInEx.Configuration;
 using System.Collections.Generic;
-using AedenthornSkillFrameworkPlusPlus.BaseSkill;
-using AedenthornSkillFrameworkPlusPlus;
+using SkillFramework.BaseSkill;
+using SkillFramework;
 using System;
 
 namespace MoreSkills.Skills

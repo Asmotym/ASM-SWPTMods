@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
+namespace SkillFramework.BaseSkill
 {
     public abstract class BaseSkill : ISkill
     {
@@ -22,17 +22,15 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
         protected Texture2D skillIcon = new Texture2D(1, 1);
         // skill icon file name (without file extension, we only use .png)
         public string iconName = "frame";
-        #endregion
-
-
         // config default properties
         public int defaultMaxPoints = 5;
         public int defaultReqLevel = 2;
-
         // default config entries
         public static ConfigEntry<int> maxPoints;
         public static ConfigEntry<int> reqLevel;
+        #endregion
 
+        #region Getters/Setters
         protected abstract string skillId
         {
             get;
@@ -47,6 +45,7 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
         {
             return iconName;
         }
+        #endregion
 
         public ISkill Build(BaseUnityPlugin defaultPlugin, string sectionName)
         {
@@ -64,7 +63,7 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
             SetSettingChanged();
             SetSkillIcon();
 
-            AedenthornSkillFrameworkPlusPlus.Log($"Setup Skill using: {configSection} - {skillCategory} - {defaultMaxPoints} - {defaultReqLevel} - {iconName}");
+            BepInExPlugin.Log($"Setup Skill using: {configSection} - {skillCategory} - {defaultMaxPoints} - {defaultReqLevel} - {iconName}");
 
             // add skill to the list
             AddSkill();
@@ -72,6 +71,9 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
             return this;
         }
 
+        /// <summary>
+        /// This method is called whenever the BepInEx configuration is updated
+        /// </summary>
         public virtual void Update()
         {
             SetSkillDescription();
@@ -91,6 +93,9 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
             }
         }
 
+        /// <summary>
+        /// This method is called when the skill should be added to the game
+        /// </summary>
         public virtual void AddSkill()
         {
             // initialize skill using SkillFramework API
@@ -100,15 +105,17 @@ namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
         public virtual void SetSkillIcon()
         {
             string path = Path.Combine(AedenthornUtils.GetAssetPath(plugin), $"{iconName}.png");
-            AedenthornSkillFrameworkPlusPlus.Log($"Setup skill icon {path}");
+            BepInExPlugin.Log($"Setup skill icon {path}");
             if (File.Exists(path))
                 skillIcon.LoadImage(File.ReadAllBytes(path));
         }
 
+        #region BepInEx & Basic Skill configuration method to override
         public abstract void SetConfig();
         public abstract void SetSkillDescription();
         public abstract void SetSkillName();
         public abstract void SetSettingChanged();
+        #endregion
 
         #region Events Delegates
 

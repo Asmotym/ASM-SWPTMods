@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace AedenthornSkillFrameworkPlusPlus
+namespace SkillFramework
 {
     // triggered on increasing a skill level
     public delegate bool SkillValidateIncreaseDelegate(SkillBox skillBox, SkillInfo skillInfo);

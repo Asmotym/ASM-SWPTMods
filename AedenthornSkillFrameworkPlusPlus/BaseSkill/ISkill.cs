@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AedenthornSkillFrameworkPlusPlus.BaseSkill
+namespace SkillFramework.BaseSkill
 {
     public interface ISkill
     {

@@ -9,16 +9,16 @@ using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace AedenthornSkillFrameworkPlusPlus
+namespace SkillFramework
 {
-    [BepInPlugin("asmotym.AedenthornSkillFrameworkPlusPlus", "Skill Framework ++", "0.0.1")]
-    public class AedenthornSkillFrameworkPlusPlus : BaseUnityPlugin
+    [BepInPlugin("aedenthorn.SkillFramework", "Skill Framework", "0.2.1")]
+    public class BepInExPlugin : BaseUnityPlugin
     {
         public static ConfigEntry<bool> modEnabled;
         public static ConfigEntry<bool> isDebug;
         public static ConfigEntry<int> nexusID;
 
-        public static AedenthornSkillFrameworkPlusPlus context;
+        public static BepInExPlugin context;
 
         public static Dictionary<string, Dictionary<string, int>> characterSkillLevels = new Dictionary<string, Dictionary<string, int>>();
         public static Dictionary<string, SkillInfo> customSkills = new Dictionary<string, SkillInfo>();
@@ -26,7 +26,7 @@ namespace AedenthornSkillFrameworkPlusPlus
         public static void Log(string message)
         {
             if (isDebug.Value)
-                Debug.Log(typeof(AedenthornSkillFrameworkPlusPlus).Namespace + " - " + message);
+                Debug.Log(typeof(BepInExPlugin).Namespace + " - " + message);
         }
 
         private void Awake()
@@ -35,11 +35,12 @@ namespace AedenthornSkillFrameworkPlusPlus
             modEnabled = Config.Bind("General", "Enabled", true, "Enable this mod");
             isDebug = Config.Bind<bool>("General", "IsDebug", true, "Enable debug logs");
 
-            //nexusID = Config.Bind<int>("General", "NexusID", 69, "Nexus mod ID for updates");
+            nexusID = Config.Bind<int>("General", "NexusID", 69, "Nexus mod ID for updates");
 
             Harmony.CreateAndPatchAll(Assembly.GetExecutingAssembly(), null);
 
         }
+
         public static int GetCharacterSkillLevel(string charName, string skillname)
         {
             if (!characterSkillLevels.ContainsKey(charName))
@@ -145,20 +146,22 @@ namespace AedenthornSkillFrameworkPlusPlus
                 if (reduce)
                 {
                     // check if we can proceed to decrease skill level
-                    if (reduce && !skillInfo.OnDecreaseSkillLevel(__instance, skillInfo))
-                        return false;
-                    SkillAPI.DecreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
-                    // refresh ui
-                    Global.code.uiCharacter.Refresh();
+                    if (skillInfo.OnDecreaseSkillLevel(__instance, skillInfo))
+                    {
+                        SkillAPI.DecreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
+                        Global.code.uiCharacter.Refresh();
+                    }
                     // return to avoid running default code that increase the skill level
                     return false;
                 }
 
                 // check if we can proceed to increase skill level
-                if (!reduce && !skillInfo.OnIncreaseSkillLevel(__instance, skillInfo))
-                    return false;
-                SkillAPI.IncreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
-
+                if (!reduce && skillInfo.OnIncreaseSkillLevel(__instance, skillInfo))
+                {
+                    SkillAPI.IncreaseSkillLevel(__instance.name, Global.code.uiCharacter.curCustomization.name);
+                    return true;
+                }
+                
                 return true;
             }
         }
@@ -169,7 +172,6 @@ namespace AedenthornSkillFrameworkPlusPlus
             static void Prefix(Mainframe __instance, CharacterCustomization customization)
             {
                 // this save the current character skills levels
-
                 if (!modEnabled.Value)
                     return;
 
@@ -188,7 +190,6 @@ namespace AedenthornSkillFrameworkPlusPlus
             static void Postfix(Mainframe __instance, CharacterCustomization gen)
             {
                 // this load the current character skills levels
-
                 if (!modEnabled.Value)
                     return;
 
@@ -209,11 +210,9 @@ namespace AedenthornSkillFrameworkPlusPlus
         {
             static bool Prefix(CharacterCustomization __instance)
             {
-                Log($"Prefix - Updating stats for character '{__instance.name}' ...");
-
+                // iterate each skill and run the delegate
                 foreach (SkillInfo skillInfo in customSkills.Values)
                 {
-                    Log($"Prefix - Updating stats for skill '{skillInfo.name}' ...");
                     skillInfo.PrefixCharacterCustomizationUpdateStats(__instance, skillInfo);
                 }
 
@@ -222,11 +221,9 @@ namespace AedenthornSkillFrameworkPlusPlus
 
             static void Postfix(CharacterCustomization __instance)
             {
-                Log($"Postfix - Updating stats for character '{__instance.name}' ...");
-
+                // iterate each skill and run the delegate
                 foreach (SkillInfo skillInfo in customSkills.Values)
                 {
-                    Log($"Postfix - Updating stats for skill '{skillInfo.name}' ...");
                     skillInfo.PostfixCharacterCustomizationUpdateStats(__instance, skillInfo);
                 }
             }

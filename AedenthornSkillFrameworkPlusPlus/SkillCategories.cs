@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AedenthornSkillFrameworkPlusPlus
+namespace SkillFramework
 {
     public static class SkillCategories
     {
