@@ -24,7 +24,9 @@ namespace DiscordPresence
         private static long CLIENT_ID = 896147824008380456;
         public static Discord.Discord discord;
         public static Discord.ActivityManager activityManager;
+        protected static Location previousLocation;
         protected static Discord.Activity previousActivity;
+        protected static long startTime;
 
         public static void Log(string message)
         {
@@ -37,21 +39,32 @@ namespace DiscordPresence
             return new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
         }
 
-        public static void UpdatePresence(Activity activity)
+        public static void UpdatePresence(Activity? activity = null)
         {
             if (modEnabled.Value)
             {
-                // save given activity
-                previousActivity = activity;
+                Log("Update Presence...");
+                if (!activity.HasValue)
+                {
+                    activity = new Activity
+                    {
+                        State = "Playing Solo", // default state, can be improved later
+                        Details = GetCurrentLocation().levelname,
+                        Assets = new ActivityAssets
+                        {
+                            LargeImage = "default",
+                            LargeText = GetCurrentCharacter().characterName
+                        },
+                        Timestamps = new ActivityTimestamps
+                        {
+                            Start = startTime
+                        }
+                    };
+                }
+                
                 // update activity
-                activityManager.UpdateActivity(activity, results => { });
+                activityManager.UpdateActivity((Activity) activity, results => { });
             }
-        }
-
-        public static void UpdateFromPreviousPresence()
-        {
-            if (modEnabled.Value)
-                activityManager.UpdateActivity(previousActivity, result => { });
         }
 
         private void Awake()
@@ -65,13 +78,18 @@ namespace DiscordPresence
             discord = new Discord.Discord(CLIENT_ID, (UInt64) Discord.CreateFlags.Default);
             activityManager = discord.GetActivityManager();
 
+            startTime = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+
             // setup default state
             UpdatePresence(new Activity {
                 Details = "In Menu",
-                State = "Idle",
                 Assets = new ActivityAssets {
                     LargeText = "She Will Punish Them",
                     LargeImage = "default"
+                },
+                Timestamps = new ActivityTimestamps
+                {
+                    Start = startTime
                 }
             });
 
@@ -94,61 +112,40 @@ namespace DiscordPresence
             return Global.code.curlocation;
         }
 
+        public static CharacterCustomization GetCurrentCharacter()
+        {
+            return Player.code.customization;
+        }
+
         [HarmonyPatch(typeof(Global), "Update")]
-        static class Global_Update_Patch
-        {
-            static void Postfix(Global __instance)
-            {
-                UpdatePresence(new Activity
-                { 
-                    Details = "Idle",
-                    State = __instance.curlocation.levelname,
-                    Assets = new ActivityAssets
-                    {
-                        LargeText = $"Playing as {__instance.uiCharacter.curCustomization.characterName}",
-                        LargeImage = "default"
-                    }
-                });
-            }
-        }
-
-        [HarmonyPatch(typeof(Global), nameof(Global.ToggleCharacter))]
-        static class Global_ToggleCharacter_Patch
-        {
-            static void Postfix(Global __instance)
-            {
-                if (__instance.uiCharacter.gameObject.activeSelf)
-                    UpdatePresence(new Activity
-                    {
-                        Details = "Character Menu",
-                        State = GetCurrentLocation().levelname,
-                        Assets = new ActivityAssets
-                        {
-                            LargeText = $"Managing {__instance.uiCharacter.curCustomization.characterName}",
-                            LargeImage = "default"
-                        }
-                    });
-                else
-                    UpdateFromPreviousPresence();
-            }
-        }
-
-        [HarmonyPatch(typeof(Global), nameof(Global.ToggleWorldMap))]
         static class Global_ToggleLingerie_Patch
         {
             static void Postfix(Global __instance)
             {
-                if (__instance.uiCharacter.gameObject.activeSelf)
-                    UpdatePresence(new Activity {
-                        Details = "World Map",
-                        State = GetCurrentLocation().levelname,
-                        Assets = new ActivityAssets {
-                            LargeText = "World Map",
-                            LargeImage = "default"
-                        }
-                    });
-                else
-                    UpdateFromPreviousPresence();
+                Location location = __instance.curlocation;
+
+                // first setup if location hasn't be defined
+                if (!previousLocation)
+                {
+                    // setup presence and save previous location
+                    previousLocation = location;
+
+                    UpdatePresence();
+
+                    return;
+                }
+
+                // skip if location hasn't changed
+                if (previousLocation.levelname == location.levelname)
+                    return;
+
+                // setup if location has changed
+                if (previousLocation.levelname != location.levelname)
+                {
+                    previousLocation = location;
+                    UpdatePresence();
+                    return;
+                }
             }
         }
     }
